@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "NUVOIS",
+    "slug": "mobile-app",
+    "scheme": "nuvois",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.nuvois.app",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.nuvois.app"
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "newArchEnabled": false
+          },
+          "android": {
+            "newArchEnabled": false
+          }
+        }
+      ],
+      "expo-secure-store"
+    ]
+  }
+}

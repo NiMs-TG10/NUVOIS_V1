@@ -1,0 +1,3 @@
+node_modules
+.DS_Store
+apps/ai-service/model_data

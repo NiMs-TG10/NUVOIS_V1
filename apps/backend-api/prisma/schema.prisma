@@ -1,0 +1,20 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String?
+  provider     String?   @default("email") // "email" or "google"
+  height       Float?    // Height in cm
+  bodyShape    String?   // Body shape: "rectangle", "triangle", "inverted-triangle", "hourglass", "oval"
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
