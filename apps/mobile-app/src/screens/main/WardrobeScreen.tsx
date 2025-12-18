@@ -7,11 +7,17 @@ import {
     TouchableOpacity,
     Image,
     StyleSheet,
-    Dimensions
+    Dimensions,
+    Alert,
+    ActivityIndicator,
+    Modal
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { colors } from '@nuvois/ui-theme';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
+import { api } from '../../services/api';
 
 const { width } = Dimensions.get('window');
 const COLUMN_GAP = 12;
@@ -36,6 +42,8 @@ const CATEGORIES = ["All", "Tops", "Bottoms", "Outerwear", "Shoes", "Accessories
 export default function WardrobeScreen() {
     const [activeCategory, setActiveCategory] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     const filteredItems = CLOSET_ITEMS.filter((item) => {
         const matchesCategory = activeCategory === "all" || item.category === activeCategory;
@@ -43,13 +51,76 @@ export default function WardrobeScreen() {
         return matchesCategory && matchesSearch;
     });
 
+    const pickAndUpload = async () => {
+        // 1. Permission Check & Pick Image
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            Alert.alert("Permission Required", "You need to allow access to your photos to upload items.");
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (result.canceled) return;
+
+        setIsUploading(true);
+        setUploadProgress(0);
+
+        try {
+            // 2. Client-Side Optimization
+            const manipResult = await ImageManipulator.manipulateAsync(
+                result.assets[0].uri,
+                [{ resize: { width: 1024 } }], // Resize to manageable width
+                { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
+            );
+
+            // 3. Prepare FormData
+            const formData = new FormData();
+            formData.append('image', {
+                uri: manipResult.uri,
+                name: 'upload.jpg',
+                type: 'image/jpeg',
+            } as any);
+
+            // 4. Send to Backend
+            // Note: Using a timeout or checking if the route exists is good practice, 
+            // but we'll follow the provided logic.
+            await api.post('/v1/b2c/scan/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress(percent);
+                    }
+                },
+            });
+
+            Alert.alert("Success", "Item uploaded successfully!");
+            // Optionally refresh the list here
+        } catch (error) {
+            console.error('Upload failed', error);
+            Alert.alert("Upload Failed", "There was a problem uploading your item. Please try again.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
             <View style={styles.headerContainer}>
                 {/* Title Header */}
                 <View style={styles.titleRow}>
                     <Text style={styles.title}>My Closet</Text>
-                    <TouchableOpacity style={styles.iconButton}>
+                    <TouchableOpacity
+                        style={styles.iconButton}
+                        onPress={pickAndUpload}
+                        disabled={isUploading}
+                    >
                         <Feather name="plus" size={24} color={colors.gray900} />
                     </TouchableOpacity>
                 </View>
@@ -118,6 +189,24 @@ export default function WardrobeScreen() {
                     </View>
                 )}
             </ScrollView>
+
+            {/* Upload Progress Overlay */}
+            <Modal
+                transparent={true}
+                visible={isUploading}
+                animationType="fade"
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.uploadContainer}>
+                        <Text style={styles.uploadTitle}>Uploading Item</Text>
+                        <ActivityIndicator size="large" color={colors.primary} style={styles.activityIndicator} />
+                        <Text style={styles.uploadProgress}>{uploadProgress}%</Text>
+                        <View style={styles.progressBar}>
+                            <View style={[styles.progressFill, { width: `${uploadProgress}%` }]} />
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -257,5 +346,50 @@ const styles = StyleSheet.create({
     emptyText: {
         color: colors.gray500,
         fontSize: 15,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    uploadContainer: {
+        width: '80%',
+        backgroundColor: colors.white,
+        borderRadius: 16,
+        padding: 24,
+        alignItems: 'center',
+        shadowColor: colors.black,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 8,
+    },
+    uploadTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: colors.gray900,
+        marginBottom: 16,
+    },
+    activityIndicator: {
+        marginBottom: 16,
+    },
+    uploadProgress: {
+        fontSize: 24,
+        fontWeight: '700',
+        color: colors.primary,
+        marginBottom: 16,
+    },
+    progressBar: {
+        width: '100%',
+        height: 8,
+        backgroundColor: colors.gray100,
+        borderRadius: 4,
+        overflow: 'hidden',
+    },
+    progressFill: {
+        height: '100%',
+        backgroundColor: colors.primary,
+        borderRadius: 4,
     },
 });
