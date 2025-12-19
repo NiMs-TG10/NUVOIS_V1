@@ -1,4 +1,4 @@
-#!/Users/nishantmehta/Developer/NUVOIS_V1/apps/ai-service/venv/bin/python3
+#!/Users/nishantmehta/Developer/NUVOIS_V1/apps/ai-service/venv/bin/python3.13
 import sys
 from watchfiles.cli import cli
 if __name__ == '__main__':

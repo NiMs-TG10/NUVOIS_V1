@@ -1,0 +1,25 @@
+path: ../datasets/fashion_composite  # Root dir
+train: images/train  # Folder with DeepFashion + Indian images
+val: images/val      # Validation folder
+
+# Total classes: 13 (DeepFashion) + 4 (Indian) = 17
+nc: 17
+
+names:
+  0: short_sleeved_shirt
+  1: long_sleeved_shirt
+  2: short_sleeved_outwear
+  3: long_sleeved_outwear
+  4: vest
+  5: sling
+  6: shorts
+  7: trousers
+  8: skirt
+  9: short_sleeved_dress
+  10: long_sleeved_dress
+  11: vest_dress
+  12: sling_dress
+  13: saree
+  14: kurta
+  15: lehenga
+  16: sherwani
