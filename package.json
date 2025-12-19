@@ -10,7 +10,7 @@
     "build": "pnpm -r run build",
     "dev:api": "pnpm --filter backend-api dev",
     "dev:app": "pnpm --filter mobile-app start",
-    "dev:ai": "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 --app-dir apps/ai-service"
+    "dev:ai": "apps/ai-service/venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 --app-dir apps/ai-service"
   },
   "dependencies": {
     "@types/cors": "^2.8.19",

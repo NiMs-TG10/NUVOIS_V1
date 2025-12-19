@@ -5,6 +5,7 @@ import authRoutes from './src/api/v1/b2c/auth.routes.js';
 import profileRoutes from './src/api/v1/b2c/profile.routes.js';
 import wardrobeRoutes from './src/api/v1/b2c/wardrobe.routes.js';
 import recommendRoutes from './src/api/v1/b2c/recommend.routes.js';
+import scanRoutes from './src/api/v1/b2c/scan.routes.js';
 
 dotenv.config();
 const app = express();
@@ -23,6 +24,7 @@ app.use('/api/v1/b2c/auth', authRoutes);
 app.use('/api/v1/b2c/profile', profileRoutes);
 app.use('/api/v1/b2c/wardrobe', wardrobeRoutes);
 app.use('/api/v1/b2c/recommend', recommendRoutes);
+app.use('/api/v1/b2c/scan', scanRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`API listening on ${PORT}`));

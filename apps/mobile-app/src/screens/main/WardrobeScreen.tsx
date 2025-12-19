@@ -61,7 +61,7 @@ export default function WardrobeScreen() {
         }
 
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ['images'],
             allowsEditing: true,
             quality: 1,
         });
@@ -80,11 +80,16 @@ export default function WardrobeScreen() {
             );
 
             // 3. Prepare FormData
+            const uri = manipResult.uri;
+            const fileType = uri.split('.').pop();
+            const mimeType = fileType === 'png' ? 'image/png' : 'image/jpeg';
+            const fileName = `upload.${fileType === 'png' ? 'png' : 'jpeg'}`;
+
             const formData = new FormData();
             formData.append('image', {
-                uri: manipResult.uri,
-                name: 'upload.jpg',
-                type: 'image/jpeg',
+                uri,
+                name: fileName,
+                type: mimeType,
             } as any);
 
             // 4. Send to Backend

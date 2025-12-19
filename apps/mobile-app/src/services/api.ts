@@ -5,7 +5,7 @@ const TOKEN_KEY = 'nuvois-jwt';
 
 // Create axios instance with base URL
 export const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000',
+  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.35:3000',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
